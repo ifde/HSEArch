@@ -7,8 +7,9 @@
 <img width="1421" alt="image" src="https://github.com/user-attachments/assets/fc87fa6e-2a12-4698-900a-9f8fbeeb8971">
 
 Типы форматов команд:
-`la`, `li`  - extended (pseudo) unstructions      
-`ecall` - basic instruction
+`auipc` - U-type
+`addi`  - I-type  
+`ecall` - system call (no specific type)
 
 ### Task 3
 
