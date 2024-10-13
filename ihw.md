@@ -5,7 +5,7 @@
 ### Задание (Вариант 38): Сформировать массив B из элементов массива A, которые одновременно имеют четные и отрицательные значения.
 
 ### Настройки RARS RISK-V, которые были использованы при тестировании
-<img width="414" alt="image" src="https://github.com/user-attachments/assets/e9aea363-ce56-4719-85a7-7c9ae199ad0e">  
+<img width="414" alt="image" src="https://github.com/user-attachments/assets/e9aea363-ce56-4719-85a7-7c9ae199ad0e">   
 Примечание: запускать программу следует с файла `main.s`
 
 
