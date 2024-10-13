@@ -12,11 +12,11 @@
 <img width="313" alt="image" src="https://github.com/user-attachments/assets/efebafec-dd3e-419d-a1d8-f794b906ad56">
 
 ### Описание функций
-`input_array.s`
-<img width="405" alt="image" src="https://github.com/user-attachments/assets/a9295981-8001-477d-befa-e33d5613fde5">
-`create_array.s`
-<img width="771" alt="image" src="https://github.com/user-attachments/assets/731f8bbf-6075-4963-afe0-cd807abe068a">
-`print_array.s`
-<img width="649" alt="image" src="https://github.com/user-attachments/assets/c02f6984-945a-477a-90b8-02f909b29ec6">
+`input_array.s`  
+<img width="405" alt="image" src="https://github.com/user-attachments/assets/a9295981-8001-477d-befa-e33d5613fde5">  
+`create_array.s`  
+<img width="771" alt="image" src="https://github.com/user-attachments/assets/731f8bbf-6075-4963-afe0-cd807abe068a">  
+`print_array.s`  
+<img width="649" alt="image" src="https://github.com/user-attachments/assets/c02f6984-945a-477a-90b8-02f909b29ec6">  
 
 
