@@ -153,5 +153,63 @@ exit_compare:
 <img width="101" alt="image" src="https://github.com/user-attachments/assets/97ee1206-019d-46e3-be00-c0987de70ea8">  
 
 
+### Автономная библиотека макросов
 
+`macros.s`
+
+```
+#
+# АВТОНОМНАЯ БИБИЛИОТЕКА МАКРОСОВ
+#    
+
+# Чтение целого числа
+.macro read_int(%x)
+	stack_push (a0)
+	li a7, 5
+	ecall
+	mv %x, a0
+	stack_pop (a0)
+.end_macro
+
+# Вывод целого числа в консоль
+.macro print_int(%x)
+	stack_push (a0)
+	li a7, 1
+	mv a0, %x
+	ecall
+	stack_pop (a0)
+.end_macro
+
+# Добавление элемента в стек
+.macro stack_push(%x)
+	addi	sp, sp, -4
+	sw	%x, (sp)
+.end_macro
+
+# Извлечение элемента из стека
+.macro stack_pop(%x)
+	lw	%x, (sp)
+	addi	sp, sp, 4
+.end_macro
+
+# Вывод строки в консоль
+.macro print_string (%x)
+	.data
+		str: .asciz %x
+   	.text
+		stack_push (a0)
+		li a7, 4
+		la a0, str
+		ecall
+		stack_pop (a0)
+.end_macro
+
+# Вывести символ в консоль
+.macro print_char(%x)
+   li a7, 11
+   li a0, %x
+   ecall
+.end_macro
+
+```
 
