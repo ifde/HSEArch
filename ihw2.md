@@ -161,8 +161,69 @@ fail:
     jr ra
 ```
 
-Скриншот работы тестирующей программы:  
+### Скриншот работы тестирующей программы:  
 <img width="135" alt="image" src="https://github.com/user-attachments/assets/5b0fc4a6-b28c-4d5f-83e4-560629771dc8">
+
+### Тестирующая программа на C++: 
+```
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+
+const double DELTA = 0.001;
+
+struct Test {
+    double x;           // Входное значение
+    double expected;    // Ожидаемое значение sinh(x)
+};
+
+bool isCloseEnough(double computed, double expected, double epsilon) {
+  return std::abs(computed - expected) < epsilon;
+}
+
+int main() {
+  Test tests[] = {
+          {1.0, 1.1752011684303352},
+          {-1.0, -1.1752011684303352},
+          {0.0, 0.0},
+          {2.5, 6.050256948361309},
+          {-2.5, -6.050256948361309},
+          {2.0, 3.6268590668590663},
+          {-2.0, -3.6268590668590663},
+          {0.5, 0.5210953000992063}
+  };
+
+  bool allTestsPassed = true;
+
+  for (const auto& test : tests) {
+    double computed = std::sinh(test.x);
+    double deviation = std::abs(computed - test.expected);
+
+    // Вывод результатов для каждого теста
+    std::cout << "x = " << test.x << ", computed sinh(x) = " << std::setprecision(15) << computed
+              << ", expected = " << test.expected
+              << ", deviation = " << deviation;
+
+    if (isCloseEnough(computed, test.expected, DELTA)) {
+      std::cout << " -> Pass\n";
+    } else {
+      std::cout << " -> Fail\n";
+      allTestsPassed = false;
+    }
+  }
+
+  if (allTestsPassed) {
+    std::cout << "\nAll tests passed within the allowed deviation of " << DELTA << ".\n";
+  } else {
+    std::cout << "\nSome tests did not pass within the allowed deviation of " << DELTA << ".\n";
+  }
+
+  return 0;
+}
+```
+
+### Скриншот работы тестирующей программы на C++: 
+<img width="953" alt="image" src="https://github.com/user-attachments/assets/dd8695ca-e884-452f-b00c-cedd755fc604">
 
 ### Автономная библиотека макросов
 
