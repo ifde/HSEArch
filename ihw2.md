@@ -1,29 +1,34 @@
 # ИДЗ #1
 # Фролов Иван Григорьевич, БПИ-235
 
-## Целочисленная арифметика. Одномерные массивы
+## RISC-V. Арифметический сопроцессор.
 
-### Задание (Вариант 38): Сформировать массив B из элементов массива A, которые одновременно имеют четные и отрицательные значения.
+### Задание (Вариант 2):
+<img width="535" alt="image" src="https://github.com/user-attachments/assets/b0801794-b39b-4823-b797-fe9ef6121aea">
 
 ### Настройки RARS RISK-V, которые были использованы при тестировании  
 <img width="414" alt="image" src="https://github.com/user-attachments/assets/e9aea363-ce56-4719-85a7-7c9ae199ad0e">  
-Примечание: запускать программу следует с файла `main.s`  
+Примечание: запускать программу следует с файла `main.s` 
+
+### Примечание
+
+Область допустимых значений x поставлена от -2.5 до 2.5, так каак опытным путем проверено, что для бОльших по модулю значения (от 2.6) при расчетах степенного ряда происходит переполнения double
 
 
 ### Тестовые прогоны (скриншоты)
-<img width="230" alt="image" src="https://github.com/user-attachments/assets/8fe30aa6-9fb0-45e1-93d7-ea9a3b1d7bdb">  
-<img width="152" alt="image" src="https://github.com/user-attachments/assets/6a26b265-96ae-4a69-bf64-3dca13615e2d">  
-<img width="230" alt="image" src="https://github.com/user-attachments/assets/a6588f41-c574-48f3-a111-d10dfa8ac329">  
-<img width="316" alt="image" src="https://github.com/user-attachments/assets/6f6203f7-5722-469b-97de-c5ad895ffc32">  
-<img width="313" alt="image" src="https://github.com/user-attachments/assets/efebafec-dd3e-419d-a1d8-f794b906ad56">  
+<img width="322" alt="image" src="https://github.com/user-attachments/assets/d375d807-7cb4-4ec9-a9fb-d32be4411365">
+<img width="293" alt="image" src="https://github.com/user-attachments/assets/24518f84-1bc3-4e4a-a26f-073342e762d4">
+<img width="275" alt="image" src="https://github.com/user-attachments/assets/af47aff6-dee9-4bdc-a3f8-4a42ca8e1408">
+<img width="280" alt="image" src="https://github.com/user-attachments/assets/3cce4da3-6ac8-4f87-afce-678fc67349b4">
+<img width="299" alt="image" src="https://github.com/user-attachments/assets/4351ffde-7ab5-433b-8c8c-b019509bea5d">
+<img width="280" alt="image" src="https://github.com/user-attachments/assets/acfd77e6-992b-4048-b4cb-f8cddbdb2fb6">
+<img width="278" alt="image" src="https://github.com/user-attachments/assets/6d975753-74c0-4601-ab98-0b6c5383f8ad">
+
 
 ### Описание функций
-`input_array.s`  
-<img width="405" alt="image" src="https://github.com/user-attachments/assets/a9295981-8001-477d-befa-e33d5613fde5">  
-`create_array.s`  
-<img width="771" alt="image" src="https://github.com/user-attachments/assets/731f8bbf-6075-4963-afe0-cd807abe068a">  
-`print_array.s`  
-<img width="649" alt="image" src="https://github.com/user-attachments/assets/c02f6984-945a-477a-90b8-02f909b29ec6">  
+`calculate_func.s`  
+<img width="448" alt="image" src="https://github.com/user-attachments/assets/7e9570e0-417f-47fe-9bed-059cadf4a064">
+
 
 ### Тестирующая программа
 `tests.s`
@@ -33,126 +38,131 @@
 # ТЕСТИРУЮЩАЯ ПРОГРАММА
 #
 
-.include "macros.s"          # Включаем макросы для вывода
+.include "macros.s"      # Подключаем макросы для работы с вводом/выводом
 
-    .data
-# Тестовые массивы A и ожидаемые результаты для массива B
-test_array_1: .word -2, -3, 4, -6, 8, 0   # Ожидается: -2, -6
-len1: .word 6
-expected_result_1: .word -2, -6
+.data
+    # Точность для всех тестов
+    delta: .double 0.001       # Ожидаемая точность 0.1%
 
-test_array_2: .word 5, 7, 9, 11, 13       # Ожидается: (пустой массив)
-expected_result_2: .word
+    # Тестовые значения x и ожидаемые результаты для функции гиперболического синуса
+    test_x1: .double 1.0             # x = 1.0
+    expected_result_1: .double 1.17520   # Ожидаемое значение sh(1) ≈ 1.17520
 
-test_array_3: .word -1, -3, -5, -7        # Ожидается: (пустой массив)
-expected_result_3: .word
+    test_x2: .double -1.0            # x = -1.0
+    expected_result_2: .double -1.17520  # Ожидаемое значение sh(-1) ≈ -1.17520
 
-test_array_4: .word -4, -8, -16, -32      # Ожидается: -4, -8, -16, -32
-expected_result_4: .word -4, -8, -16, -32
+    test_x3: .double 0.0             # x = 0.0
+    expected_result_3: .double 0.0       # Ожидаемое значение sh(0) = 0
 
-test_array_5: .word 0, 0, 0      # Ожидается: (пустой массив)
-expected_result_5: .word
+    test_x4: .double 2.5            # x = 2.5
+    expected_result_4: .double 6.0502  # Ожидаемое значение sh(2.5) ≈ 6.0502
 
-newline: .asciz "\n"
-pass_message: .asciz "Test passed!\n"
-fail_message: .asciz "Test failed!\n"
+    test_x5: .double -2.5           # x = -2.5
+    expected_result_5: .double -6.0502 # Ожидаемое значение sh(-2.5) ≈ -6.0502
 
-    .text
-    .globl test
-test:
+    test_x6: .double 2.0           # x = 2.0
+    expected_result_6: .double 3.62686 # Ожидаемое значение sh(2.0) ≈ 3.62686
 
+    test_x7: .double -2.0          # x = -2.0
+    expected_result_7: .double -3.62686 # Ожидаемое значение sh(-2.0) ≈ -3.62686
 
-    # Прогон теста 1
-    la a0, test_array_1      # Указатель на массив A
-    lw a2,  len1                # Количество элементов в массиве A
-    jal ra, create_array_b    # Вызываем подпрограмму для создания массива B
-    la a0, expected_result_1  # Указатель на ожидаемый массив B
-    li a2, 2                 # Ожидаемое количество элементов
-    jal ra, compare_results   # Сравнение результата с ожиданием
+    test_x8: .double 0.5             # x = 0.5
+    expected_result_8: .double 0.5210953   # Ожидаемое значение sh(0.5) ≈ 0.5210953
 
-    # Прогон теста 2
-    la a0, test_array_2
-    li a2, 5
-    jal ra, create_array_b
-    la a0, expected_result_2
-    li a2, 0
-    jal ra, compare_results
+    newline: .asciz "\n"
+    pass_message: .asciz "Test passed!\n"
+    fail_message: .asciz "Test failed!\n"
 
-    # Прогон теста 3
-    la a0, test_array_3
-    li a2, 4
-    jal ra, create_array_b
-    la a0, expected_result_3
-    li a2, 0
-    jal ra, compare_results
+.text
+.globl test
+test:   
+    fld fa0, delta, t0        # fa0 = точность
 
-    # Прогон теста 4
-    la a0, test_array_4
-    li a2, 4
-    jal ra, create_array_b
-    la a0, expected_result_4
-    li a2, 4
-    jal ra, compare_results
-    
-    # Прогон теста 5
-    la a0, test_array_5
-    li a2, 3
-    jal ra, create_array_b
-    la a0, expected_result_5
-    li a2, 0
-    jal ra, compare_results
+    # Тест 1: x = 1.0, ожидаемое значение ≈ 1.17520
+    la t1, test_x1
+    fld fa1, 0(t1)         # Загружаем значение x в fa1
+    call calculate_func # Вызываем calculate_func
+    fld ft0, expected_result_1, t2
+    jal ra, compare_result    # Сравниваем fa2 с ft0
+
+    # Тест 2: x = -1.0, ожидаемое значение ≈ -1.17520
+    la t1, test_x2
+    fld fa1, 0(t1)
+    jal ra, calculate_func
+    fld ft0, expected_result_2, t2
+    jal ra, compare_result
+
+    # Тест 3: x = 0.0, ожидаемое значение = 0.0
+    la t1, test_x3
+    fld fa1, 0(t1)
+    jal ra, calculate_func
+    fld ft0, expected_result_3, t2
+    jal ra, compare_result
+
+    # Тест 4: x = 2.5, ожидаемое значение ≈ 6.0502
+    la t1, test_x4
+    fld fa1, 0(t1)
+    jal ra, calculate_func
+    fld ft0, expected_result_4, t2
+    jal ra, compare_result
+
+    # Тест 5: x = -2.5, ожидаемое значение ≈ -6.0502
+    la t1, test_x5
+    fld fa1, 0(t1)
+    jal ra, calculate_func
+    fld ft0, expected_result_5, t2
+    jal ra, compare_result
+
+    # Тест 6: x = 2, ожидаемое значение ≈ 3.62686
+    la t1, test_x6
+    fld fa1, 0(t1)
+    jal ra, calculate_func
+    fld ft0, expected_result_6, t2
+    jal ra, compare_result
+
+    # Тест 7: x = -2, ожидаемое значение ≈ -3.62686
+    la t1, test_x7
+    fld fa1, 0(t1)
+    jal ra, calculate_func
+    fld ft0, expected_result_7, t2
+    jal ra, compare_result
+
+    # Тест 8: x = 0.5, ожидаемое значение ≈ 0.5210953
+    la t1, test_x8
+    fld fa1, 0(t1)
+    jal ra, calculate_func
+    fld ft0, expected_result_8, t2
+    jal ra, compare_result
 
     # Завершение программы
     li a7, 10
     ecall
 
-# Подпрограмма для сравнения массива B с ожидаемым результатом
-# Параметры:
-# a0 - указатель на ожидаемый результат (массив)
-# a1 - указатель на реальный результат (массив B)
-# a2 - количество элементов в массиве B (реальный результат)
-# a3 - ожидаемое количество элементов в массиве B
-compare_results:
-    li t0, 0           # Инициализируем индекс элементов
-    mv t1, a0          
-    mv t2, a1        
-    
-    bne a2, a3, fail   # Сравнение количества элементов
+# Подпрограмма для сравнения результата с ожидаемым значением
+# fa2 - результат функции
+# ft0 - ожидаемое значение
+compare_result:
+   fld ft2, delta, t0        # ft2 = точность
 
-loop_compare:
-    beq t0, a2, pass   # Если все элементы проверены, то успех
-    
-    lw t3, 0(t1)       
-    lw t4, 0(t2)       
-    
-    bne t3, t4, fail   # Если элементы не равны, то ошибка
+    fsub.d ft1, fa2, ft0       # Вычисляем разницу между результатом и ожидаемым значением
+    fsgnj.d ft1, ft1, ft2    # Вычисляем модуль разницы
 
-    addi t1, t1, 4     
-    addi t2, t2, 4     
-    addi t0, t0, 1     
-    j loop_compare
+    flt.d t4, ft1, ft2         # Проверка: |result - expected| < точность
+    beqz t4, fail              # Если проверка не пройдена, выводим fail
 
 pass:
-    # Выводим сообщение об успешном прохождении теста
-    la a0, pass_message
-    li a7, 4
-    ecall
-    j exit_compare
+    # Сообщение об успешном прохождении теста
+    print_string("Тест пройден\n")
+    jr ra
 
 fail:
-    # Выводим сообщение о неудачном прохождении теста
-    la a0, fail_message
-    li a7, 4
-    ecall
-
-exit_compare:
-    ret
-
+    # Сообщение о неудачном прохождении теста
+    print_string("Тест не пройден\n")
+    jr ra
 ```
 
 Скриншот работы тестирующей программы:  
-<img width="101" alt="image" src="https://github.com/user-attachments/assets/97ee1206-019d-46e3-be00-c0987de70ea8">  
-
+<img width="135" alt="image" src="https://github.com/user-attachments/assets/5b0fc4a6-b28c-4d5f-83e4-560629771dc8">
 
 ### Автономная библиотека макросов
 
@@ -172,6 +182,15 @@ exit_compare:
 	stack_pop (a0)
 .end_macro
 
+# Чтение double
+.macro read_double(%x)
+	double_stack_push(fa0)
+	li a7, 7
+	ecall
+	fmv.d %x fa0
+	double_stack_pop(fa0)
+.end_macro 
+
 # Вывод целого числа в консоль
 .macro print_int(%x)
 	stack_push (a0)
@@ -181,17 +200,40 @@ exit_compare:
 	stack_pop (a0)
 .end_macro
 
+# Вывод double в консоль
+.macro print_double(%x)
+        double_stack_push (fa0)
+	li a7, 3
+	fmv.d fa0 %x
+	ecall
+	double_stack_pop (fa0)
+.end_macro 
+
+
 # Добавление элемента в стек
 .macro stack_push(%x)
 	addi	sp, sp, -4
-	sw	%x, (sp)
+	sw    %x, 0(sp)
 .end_macro
+
+# Добавление double элемента в стек
+.macro double_stack_push(%x)
+	addi	sp, sp, -8
+	fsd 	%x, 0(sp)
+.end_macro
+
 
 # Извлечение элемента из стека
 .macro stack_pop(%x)
-	lw	%x, (sp)
+	lw	%x, 0(sp)
 	addi	sp, sp, 4
 .end_macro
+
+# Извлечение double элемента из стека
+.macro double_stack_pop(%x)
+	fld 	%x, 0(sp)
+	addi	sp, sp, 8
+.end_macro 
 
 # Вывод строки в консоль
 .macro print_string (%x)
@@ -211,7 +253,6 @@ exit_compare:
    li a0, %x
    ecall
 .end_macro
-
 ```
 
 
