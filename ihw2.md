@@ -223,7 +223,7 @@ int main() {
 ```
 
 ### Скриншот работы тестирующей программы на C++: 
-<img width="953" alt="image" src="https://github.com/user-attachments/assets/dd8695ca-e884-452f-b00c-cedd755fc604">
+![Uploading image.png…]()
 
 ### Автономная библиотека макросов
 
