@@ -1,4 +1,4 @@
-# ИДЗ #2
+# ИДЗ #3
 # Фролов Иван Григорьевич, БПИ-235
 
 ## RISC-V. Арифметический сопроцессор.
@@ -14,6 +14,8 @@
 
 ### Примечание
 
+Постарался сделать все на 10 баллов!
+
 Сначала пользователь в графическом диалоговом окне вводит имя входного файла вместе с расширением.  
 Файл должен распологаться в директории с программой.  
 Для удобства такой файл с текстом уже создан и называется `test.txt`
@@ -25,215 +27,150 @@
 Наконец, в третьем диалогом окне пользователь вводит Y или N в зависимости от того, желает ли он выводить строки с перевернутыми словами в консоль.
 
 
-### Тестовые прогоны (скриншоты)
-<img width="322" alt="image" src="https://github.com/user-attachments/assets/d375d807-7cb4-4ec9-a9fb-d32be4411365">
-<img width="293" alt="image" src="https://github.com/user-attachments/assets/24518f84-1bc3-4e4a-a26f-073342e762d4">
-<img width="275" alt="image" src="https://github.com/user-attachments/assets/af47aff6-dee9-4bdc-a3f8-4a42ca8e1408">
-<img width="280" alt="image" src="https://github.com/user-attachments/assets/3cce4da3-6ac8-4f87-afce-678fc67349b4">
-<img width="299" alt="image" src="https://github.com/user-attachments/assets/4351ffde-7ab5-433b-8c8c-b019509bea5d">
-<img width="280" alt="image" src="https://github.com/user-attachments/assets/acfd77e6-992b-4048-b4cb-f8cddbdb2fb6">
-<img width="278" alt="image" src="https://github.com/user-attachments/assets/6d975753-74c0-4601-ab98-0b6c5383f8ad">
+### Тестовый прогон (скриншоты)
+<img width="645" alt="image" src="https://github.com/user-attachments/assets/a37ea602-95e3-4d26-b1c2-b6974ae04d46">
+<img width="646" alt="image" src="https://github.com/user-attachments/assets/27a6599f-d2cb-4dc2-b8fc-a9c0ed96051f">
+<img width="447" alt="image" src="https://github.com/user-attachments/assets/24a64526-cc08-4955-8f70-90f14d5287bf">
+Если слов нет, то не переворачиваем:
+<img width="444" alt="image" src="https://github.com/user-attachments/assets/10dfa0de-e3d0-4730-879f-76c898ff9235">
+
+А еще программа читает длинные тексты! (по кусочкам, в буфере всегда 512 элементов максимум)
+<img width="645" alt="image" src="https://github.com/user-attachments/assets/5a47991a-1267-4e2b-b82a-18472eaba0c1">
+<img width="646" alt="image" src="https://github.com/user-attachments/assets/745f452e-5a98-4ea8-9966-57517c0e4392">
 
 
-### Описание функций
-`calculate_func.s`  
+
+### Описание файлов
+`macros.s` - стандратные макросы
+`macros_file_io.s` - макросы для ввода / вывода
+`macros_reverse_words.s` - макросы для опеределения, является ли считанный символ буквой
+`reverse_words.s` - подпрограмма, которая переворачивает слова внутри строки
+`file_input.s` - подпрограмма, которая считывает текст из файла и переворачивает его, а после запускает подпрограмму для записи в файл
+`file_output.s` - подпрограмма для записи в файл
+
+
 <img width="448" alt="image" src="https://github.com/user-attachments/assets/7e9570e0-417f-47fe-9bed-059cadf4a064">
 
 
 ### Тестирующая программа
-`tests.s`
+`test_script.s`
 
 ```
-#
-# ТЕСТИРУЮЩАЯ ПРОГРАММА
-#
+# ТЕСТИРУЮЩАЯ ПОДРОГРАММА. Вызываются функции через макросы. Делает несколько тестов, выводя результаты на коноль.
 
-.include "macros.s"      # Подключаем макросы для работы с вводом/выводом
+.include "macros.s"
+.include "macros_file_io.s"
 
 .data
-    # Точность для всех тестов
-    delta: .double 0.001       # Ожидаемая точность 0.1%
+input_file:       .asciz "input.txt"       # Fixed input file
+output_file:      .asciz "output.txt"      # Fixed output file
 
-    # Тестовые значения x и ожидаемые результаты для функции гиперболического синуса
-    test_x1: .double 1.0             # x = 1.0
-    expected_result_1: .double 1.17520   # Ожидаемое значение sh(1) ≈ 1.17520
+test1_input:      .asciz "hello world"
+test1_expected:   .asciz "olleh dlrow"
 
-    test_x2: .double -1.0            # x = -1.0
-    expected_result_2: .double -1.17520  # Ожидаемое значение sh(-1) ≈ -1.17520
+test2_input:      .asciz "Assembly language is great!"
+test2_expected:   .asciz "ylbmessA egaugnal si taerg!"
 
-    test_x3: .double 0.0             # x = 0.0
-    expected_result_3: .double 0.0       # Ожидаемое значение sh(0) = 0
+test3_input:      .asciz "12345!@# abc"
+test3_expected:   .asciz "12345!@# cba"
 
-    test_x4: .double 2.5            # x = 2.5
-    expected_result_4: .double 6.0502  # Ожидаемое значение sh(2.5) ≈ 6.0502
+buffer:           .space 256               # Temporary buffer for reading output
+len:              .word 0                  # Temporary storage for string lengths
 
-    test_x5: .double -2.5           # x = -2.5
-    expected_result_5: .double -6.0502 # Ожидаемое значение sh(-2.5) ≈ -6.0502
-
-    test_x6: .double 2.0           # x = 2.0
-    expected_result_6: .double 3.62686 # Ожидаемое значение sh(2.0) ≈ 3.62686
-
-    test_x7: .double -2.0          # x = -2.0
-    expected_result_7: .double -3.62686 # Ожидаемое значение sh(-2.0) ≈ -3.62686
-
-    test_x8: .double 0.5             # x = 0.5
-    expected_result_8: .double 0.5210953   # Ожидаемое значение sh(0.5) ≈ 0.5210953
-
-    newline: .asciz "\n"
-    pass_message: .asciz "Test passed!\n"
-    fail_message: .asciz "Test failed!\n"
+success:  .asciz "Test passed\n"
+fail_msg: .asciz "Test failed\n"
 
 .text
 .globl test
-test:   
-    fld fa0, delta, t0        # fa0 = точность
 
-    # Тест 1: x = 1.0, ожидаемое значение ≈ 1.17520
-    la t1, test_x1
-    fld fa1, 0(t1)         # Загружаем значение x в fa1
-    call calculate_func # Вызываем calculate_func
-    fld ft0, expected_result_1, t2
-    jal ra, compare_result    # Сравниваем fa2 с ft0
+test:
+    print_string("test 1\n")
+    # Test 1
+    la s0, test1_input                     # Address of input string
+    la s1, input_file                      # Address of input file path
+    li s2, 11                              # Length of input string
+    EMPTY_FILE(s1)                         # Emptying the source file
+    write_to_path(s0, s1, s2)              # Write input to the input file
 
-    # Тест 2: x = -1.0, ожидаемое значение ≈ -1.17520
-    la t1, test_x2
-    fld fa1, 0(t1)
-    jal ra, calculate_func
-    fld ft0, expected_result_2, t2
-    jal ra, compare_result
+    la s1, input_file                      # Address of input file path
+    la s2, output_file                     # Address of output file path
+    li s3, 'N'                               # Don't print to the console
+    process_string_from_path(s1, s2, s3)   # Process string
+    
+    la s2, output_file 
+    OPEN_FILE(s2, 0, s4) # s4 = file descriptor
+    READ_FILE_PART(s4, s0, 256, s5) # s0 - string from the output file
+    CLOSE_FILE(s4)
+    print_string("__result: ")
+    print_asciz_string(s0)
+    print_string("\n")
+    la s1, test1_expected                  # Address of expected output
+    print_string("expected: ")
+    print_asciz_string(s1)
+    print_string("\n")
+    li s2, 11                              # Length to compare
+    # call compare_strings                 
 
-    # Тест 3: x = 0.0, ожидаемое значение = 0.0
-    la t1, test_x3
-    fld fa1, 0(t1)
-    jal ra, calculate_func
-    fld ft0, expected_result_3, t2
-    jal ra, compare_result
+    print_string("test 2\n")
+    # Test 2
+    la s0, test2_input                     # Address of input string
+    la s1, input_file                      # Address of input file path
+    li s2, 29                              # Length of input string
+    EMPTY_FILE(s1)                         # Emptying the source file
+    write_to_path(s0, s1, s2)              # Write input to the input file
 
-    # Тест 4: x = 2.5, ожидаемое значение ≈ 6.0502
-    la t1, test_x4
-    fld fa1, 0(t1)
-    jal ra, calculate_func
-    fld ft0, expected_result_4, t2
-    jal ra, compare_result
+    la s1, input_file                      # Address of input file path
+    la s2, output_file                     # Address of output file path
+    li s3, 'N'                               # Don't print to the console
+    process_string_from_path(s1, s2, s3)   # Process string
+    
+    la s2, output_file 
+    li s4, 0
+    OPEN_FILE(s2, 0, s4) # s4 = file descriptor
+    READ_FILE_PART(s4, s0, 256, s5) # s0 - string from the output file
+    CLOSE_FILE(s4)
+    print_string("__result: ")
+    print_asciz_string(s0)
+    print_string("\n")
+    la s1, test2_expected                  # Address of expected output
+    print_string("expected: ")                 # Address of expected output
+    print_asciz_string(s1)
+    print_string("\n")
+    li s2, 29                              # Length to compare
+    
+    print_string("test 3\n")
+    # Test 3
+    la s0, test3_input                     # Address of input string
+    la s1, input_file                      # Address of input file path
+    li s2, 17                              # Length of input string
+    EMPTY_FILE(s1)                         # Emptying the source file
+    write_to_path(s0, s1, s2)              # Write input to the input file
 
-    # Тест 5: x = -2.5, ожидаемое значение ≈ -6.0502
-    la t1, test_x5
-    fld fa1, 0(t1)
-    jal ra, calculate_func
-    fld ft0, expected_result_5, t2
-    jal ra, compare_result
-
-    # Тест 6: x = 2, ожидаемое значение ≈ 3.62686
-    la t1, test_x6
-    fld fa1, 0(t1)
-    jal ra, calculate_func
-    fld ft0, expected_result_6, t2
-    jal ra, compare_result
-
-    # Тест 7: x = -2, ожидаемое значение ≈ -3.62686
-    la t1, test_x7
-    fld fa1, 0(t1)
-    jal ra, calculate_func
-    fld ft0, expected_result_7, t2
-    jal ra, compare_result
-
-    # Тест 8: x = 0.5, ожидаемое значение ≈ 0.5210953
-    la t1, test_x8
-    fld fa1, 0(t1)
-    jal ra, calculate_func
-    fld ft0, expected_result_8, t2
-    jal ra, compare_result
-
-    # Завершение программы
+    la s1, input_file                      # Address of input file path
+    la s2, output_file                     # Address of output file path
+    li s3, 'N'                               # Don't print to the console
+    process_string_from_path(s1, s2, s3)   # Process string
+    
+    la s2, output_file 
+    OPEN_FILE(s2, 0, s4) # s4 = file descriptor
+    READ_FILE_PART(s4, s0, 256, s5) # s0 - string from the output file
+    CLOSE_FILE(s4)
+    print_string("__result: ")
+    print_asciz_string(s0)
+    print_string("\n")
+    la s1, test3_expected                  # Address of expected output
+    print_string("expected: ")                 # Address of expected output
+    print_asciz_string(s1)
+    print_string("\n")
+    li s2, 17                              # Length to compare
+    
     li a7, 10
     ecall
 
-# Подпрограмма для сравнения результата с ожидаемым значением
-# fa2 - результат функции
-# ft0 - ожидаемое значение
-compare_result:
-   fld ft2, delta, t0        # ft2 = точность
-
-    fsub.d ft1, fa2, ft0       # Вычисляем разницу между результатом и ожидаемым значением
-    fsgnj.d ft1, ft1, ft2    # Вычисляем модуль разницы
-
-    flt.d t4, ft1, ft2         # Проверка: |result - expected| < точность
-    beqz t4, fail              # Если проверка не пройдена, выводим fail
-
-pass:
-    # Сообщение об успешном прохождении теста
-    print_string("Тест пройден\n")
-    jr ra
-
-fail:
-    # Сообщение о неудачном прохождении теста
-    print_string("Тест не пройден\n")
-    jr ra
 ```
 
 ### Скриншот работы тестирующей программы:  
-<img width="135" alt="image" src="https://github.com/user-attachments/assets/5b0fc4a6-b28c-4d5f-83e4-560629771dc8">
-
-### Тестирующая программа на C++: 
-```
-#include <iostream>
-#include <cmath>
-#include <iomanip>
-
-const double DELTA = 0.001;
-
-struct Test {
-    double x;           // Входное значение
-    double expected;    // Ожидаемое значение sinh(x)
-};
-
-bool isCloseEnough(double computed, double expected, double epsilon) {
-  return std::abs(computed - expected) < epsilon;
-}
-
-int main() {
-  Test tests[] = {
-          {1.0, 1.1752011684303352},
-          {-1.0, -1.1752011684303352},
-          {0.0, 0.0},
-          {2.5, 6.050256948361309},
-          {-2.5, -6.050256948361309},
-          {2.0, 3.6268590668590663},
-          {-2.0, -3.6268590668590663},
-          {0.5, 0.5210953000992063}
-  };
-
-  bool allTestsPassed = true;
-
-  for (const auto& test : tests) {
-    double computed = std::sinh(test.x);
-    double deviation = std::abs(computed - test.expected);
-
-    // Вывод результатов для каждого теста
-    std::cout << "x = " << test.x << ", computed sinh(x) = " << std::setprecision(15) << computed
-              << ", expected = " << test.expected
-              << ", deviation = " << deviation;
-
-    if (isCloseEnough(computed, test.expected, DELTA)) {
-      std::cout << " -> Pass\n";
-    } else {
-      std::cout << " -> Fail\n";
-      allTestsPassed = false;
-    }
-  }
-
-  if (allTestsPassed) {
-    std::cout << "\nAll tests passed within the allowed deviation of " << DELTA << ".\n";
-  } else {
-    std::cout << "\nSome tests did not pass within the allowed deviation of " << DELTA << ".\n";
-  }
-
-  return 0;
-}
-```
-
-### Скриншот работы тестирующей программы на C++: 
-<img width="959" alt="image" src="https://github.com/user-attachments/assets/4088015c-b914-412a-a4d0-90105ac045f6">
+<img width="273" alt="image" src="https://github.com/user-attachments/assets/84633c19-713f-446d-a1dc-ee93f87e7b76">
 
 ### Автономная библиотека макросов
 
@@ -242,7 +179,63 @@ int main() {
 ```
 #
 # АВТОНОМНАЯ БИБИЛИОТЕКА МАКРОСОВ
-#    
+#   
+
+.macro ASK_THE_USER(%res)
+.data
+prompt:    .asciz "Желаете выводить строки в консоль? (Y/N): "  # Вопрос пользователю
+.text
+
+# Вывод вопроса
+    la      a0, prompt        # Загрузить адрес строки вопроса
+    li      a7, 4            
+    ecall
+
+    # Чтение ответа
+    li      a7, 12            
+    ecall
+
+    # Сохранение ответа в a0
+    mv      %res, a0      # Загрузить ответ пользователя в %res
+
+.end_macro
+
+.macro exit
+    li a7, 10
+    ecall
+.end_macro
+
+# Reads data from path and reverses it
+.macro process_string_from_path(%path, %destination_path, %answer)
+	mv a1 %path
+	mv a2 %destination_path
+	mv a3 %answer
+	call read 
+.end_macro 
+
+# Writes a string to path
+.macro write_to_path(%str, %path, %len)
+        mv a0, %str
+	mv a1, %path
+	mv a2, %len
+	call write 
+.end_macro 
+
+# Reverses the string
+.macro reverse_string(%str, %res, %len)
+	mv a1 %str
+	mv a2 %len
+	call reverse
+	mv %res a1
+	mv %len a2
+.end_macro 
+
+.macro strncpy(%res, %src, %n)
+	mv a0 %res
+	mv a1 %src
+	mv a2 %n
+	call strncpy
+.end_macro  
 
 # Чтение целого числа
 .macro read_int(%x)
@@ -253,13 +246,12 @@ int main() {
 	stack_pop (a0)
 .end_macro
 
-# Чтение double
-.macro read_double(%x)
-	double_stack_push(fa0)
-	li a7, 7
+# Чтение строки
+.macro read_string(%str)
+	mv a0 %str
+	li a1 127
+	li a7 8
 	ecall
-	fmv.d %x fa0
-	double_stack_pop(fa0)
 .end_macro 
 
 # Вывод целого числа в консоль
@@ -271,40 +263,17 @@ int main() {
 	stack_pop (a0)
 .end_macro
 
-# Вывод double в консоль
-.macro print_double(%x)
-        double_stack_push (fa0)
-	li a7, 3
-	fmv.d fa0 %x
-	ecall
-	double_stack_pop (fa0)
-.end_macro 
-
-
 # Добавление элемента в стек
 .macro stack_push(%x)
 	addi	sp, sp, -4
-	sw    %x, 0(sp)
+	sw	%x, (sp)
 .end_macro
-
-# Добавление double элемента в стек
-.macro double_stack_push(%x)
-	addi	sp, sp, -8
-	fsd 	%x, 0(sp)
-.end_macro
-
 
 # Извлечение элемента из стека
 .macro stack_pop(%x)
-	lw	%x, 0(sp)
+	lw	%x, (sp)
 	addi	sp, sp, 4
 .end_macro
-
-# Извлечение double элемента из стека
-.macro double_stack_pop(%x)
-	fld 	%x, 0(sp)
-	addi	sp, sp, 8
-.end_macro 
 
 # Вывод строки в консоль
 .macro print_string (%x)
@@ -317,6 +286,34 @@ int main() {
 		ecall
 		stack_pop (a0)
 .end_macro
+
+.macro PRINT_N_CHARS(%buffer, %length)
+    mv t0, %buffer       # Address of the buffer into t0
+    mv t1, %length       # Number of characters to print into t1
+    
+    # Loop to print each character
+loop:
+    beqz t1, finish           # Exit loop if t1 (remaining characters) is 0
+    lb a0, 0(t0)         # Load the current character from the buffer
+    beqz a0, finish          # Stop if we encounter a null terminator
+    li a7, 11            # Syscall for printing a single character
+    ecall
+    addi t0, t0, 1       # Move to the next character
+    addi t1, t1, -1      # Decrease the counter
+    j loop                 # Repeat the loop
+
+finish:
+.end_macro
+
+
+# Вывод .asciz строки в консоль
+.macro print_asciz_string(%x)
+	stack_push(a0)
+	li a7, 4
+	mv a0, %x
+	ecall
+	stack_pop(a0)
+.end_macro 
 
 # Вывести символ в консоль
 .macro print_char(%x)
