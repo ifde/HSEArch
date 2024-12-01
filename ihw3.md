@@ -30,11 +30,11 @@
 ### Тестовый прогон (скриншоты)
 <img width="645" alt="image" src="https://github.com/user-attachments/assets/a37ea602-95e3-4d26-b1c2-b6974ae04d46">
 <img width="646" alt="image" src="https://github.com/user-attachments/assets/27a6599f-d2cb-4dc2-b8fc-a9c0ed96051f">
-<img width="447" alt="image" src="https://github.com/user-attachments/assets/24a64526-cc08-4955-8f70-90f14d5287bf">
-Если слов нет, то не переворачиваем:
+<img width="447" alt="image" src="https://github.com/user-attachments/assets/24a64526-cc08-4955-8f70-90f14d5287bf">  
+Если слов нет, то не переворачиваем:  
 <img width="444" alt="image" src="https://github.com/user-attachments/assets/10dfa0de-e3d0-4730-879f-76c898ff9235">
 
-А еще программа читает длинные тексты! (по кусочкам, в буфере всегда 512 элементов максимум)
+А еще программа читает длинные тексты! (по кусочкам, в буфере всегда 512 элементов максимум)  
 <img width="645" alt="image" src="https://github.com/user-attachments/assets/5a47991a-1267-4e2b-b82a-18472eaba0c1">
 <img width="646" alt="image" src="https://github.com/user-attachments/assets/745f452e-5a98-4ea8-9966-57517c0e4392">
 
@@ -46,16 +46,16 @@
 `macros_reverse_words.s` - макросы для опеределения, является ли считанный символ буквой
 `reverse_words.s` - подпрограмма, которая переворачивает слова внутри строки
 `file_input.s` - подпрограмма, которая считывает текст из файла и переворачивает его, а после запускает подпрограмму для записи в файл
-`file_output.s` - подпрограмма для записи в файл
+`file_output.s` - подпрограмма для записи в файл  
 
 
 <img width="448" alt="image" src="https://github.com/user-attachments/assets/7e9570e0-417f-47fe-9bed-059cadf4a064">
 
 
 ### Тестирующая программа
-`test_script.s`
+`test_script.s`  
 
-Примечание: для чтения и записи она использует фиксированные файлы `input.txt`и `output.txt`, чтобы не конфликтовать с основной программой.
+Примечание: для чтения и записи она использует фиксированные файлы `input.txt`и `output.txt`, чтобы не конфликтовать с основной программой.  
 
 ```
 # ТЕСТИРУЮЩАЯ ПОДРОГРАММА. Вызываются функции через макросы. Делает несколько тестов, выводя результаты на коноль.
