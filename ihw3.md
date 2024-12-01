@@ -32,7 +32,7 @@
 <img width="646" alt="image" src="https://github.com/user-attachments/assets/27a6599f-d2cb-4dc2-b8fc-a9c0ed96051f">
 <img width="447" alt="image" src="https://github.com/user-attachments/assets/24a64526-cc08-4955-8f70-90f14d5287bf">  
 Если слов нет, то не переворачиваем:  
-<img width="444" alt="image" src="https://github.com/user-attachments/assets/10dfa0de-e3d0-4730-879f-76c898ff9235">
+<img width="444" alt="image" src="https://github.com/user-attachments/assets/10dfa0de-e3d0-4730-879f-76c898ff9235">  
 
 А еще программа читает длинные тексты! (по кусочкам, в буфере всегда 512 элементов максимум)  
 <img width="645" alt="image" src="https://github.com/user-attachments/assets/5a47991a-1267-4e2b-b82a-18472eaba0c1">
